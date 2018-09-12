@@ -123,7 +123,7 @@ do
                     [ -z "$ssr_host" ] && continue
                 fi
                 
-                uci_name_tmp=$(uci show $name | grep -w $ssr_host | awk -F . '{print $2}')
+                uci_name_tmp=$(uci show $name | grep -w '@servers.*.server' | grep -w $ssr_host | awk -F . '{print $2}')
                 if [ -z "$uci_name_tmp" ]; then # 判断当前服务器信息是否存在
                     uci_name_tmp=$(uci add $name servers)
                     subscribe_n=$(($subscribe_n + 1))
