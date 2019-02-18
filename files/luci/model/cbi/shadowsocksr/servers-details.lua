@@ -74,8 +74,8 @@ o = s:option(Flag, "fast_open", translate("TCP Fast Open"))
 o.rmempty = false
 
 o = s:option(Value, "server", translate("Server Address"))
-o.placeholder = "eg: 192.168.1.1"
-o.datatype = "ipaddr"
+o.placeholder = "eg: 192.168.1.1 or example.com"
+o.datatype = "host"
 o.rmempty = false
 
 o = s:option(Value, "server_port", translate("Server Port"))
