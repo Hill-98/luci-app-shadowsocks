@@ -168,13 +168,13 @@ if nixio.fs.access("/usr/share/dnsmasq/trust-anchors.conf") then
 	o = s:option(ListValue, "method", translate("Processing method"))
 	o:value("nil", translate("Disable"))
 	if has_bin("cdns") then
-		o:value("cdns", "CDNS")
+		o:value("cdns", "CDNS (Cloudflare DNS)")
 	end
 	if has_bin("pdnsd") then
 		o:value("pdnsd", "Pdnsd (OpenDNS)")
 	end
 	if has_bin("dns-forwarder") then
-		o:value("dnsforwarder", "DNS Forwarder (TUNA DNS)")
+		o:value("dnsforwarder", "DNS Forwarder (Google DNS)")
 	end
 	if has_bin("https_dns_proxy") then
 		o:value("https_dns_proxy", "https_dns_proxy (Google DNS)")
