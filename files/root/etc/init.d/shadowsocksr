@@ -168,15 +168,6 @@ ssr_tunnel() {
 	done
 }
 
-start_pdnsd() {
-	if [ ! -f /var/pdnsd/pdnsd.cache ]; then
-		mkdir -p /var/pdnsd
-		dd if=/dev/zero of=/var/pdnsd/pdnsd.cache bs=1 count=4 2> /dev/null
-		chown -R nobody.nogroup /var/pdnsd
-	fi
-	pdnsd --daemon -p /var/run/pdnsd.pid
-}
-
 get_dnsmasq_confdir() {
 	local pid=$(pidof dnsmasq)
 	[ $? -ne 0 ] && echo "/tmp/dnsmasq.d"
@@ -204,6 +195,7 @@ dns_poisoning() {
 			dnsforwarder)
 				uci set dns-forwarder.@dns-forwarder[0].enable=1
 				uci set dns-forwarder.@dns-forwarder[0].dns_servers=8.8.8.8
+				uci set dns-forwarder.@dns-forwarder[0].listen_port=5300
 				uci commit dns-forwarder
 				/etc/init.d/dns-forwarder start
 			;;
@@ -213,7 +205,7 @@ dns_poisoning() {
 				/etc/init.d/https_dns_proxy start
 			;;
 			pdnsd)
-				start_pdnsd
+				/etc/init.d/pdnsd start
 			;;
 		esac
 		[ ! -f $gfw_list_tmp ] && {
@@ -230,6 +222,8 @@ dns_poisoning() {
 	[ $? -eq 0 ] && /etc/init.d/dns-forwarder disable
 	ls /etc/rc.d/*https_dns_proxy >/dev/null 2>&1
 	[ $? -eq 0 ] && /etc/init.d/https_dns_proxy disable
+	ls /etc/rc.d/*pdnsd >/dev/null 2>&1
+	[ $? -eq 0 ] && /etc/init.d/pdnsd disable
 }
 
 corn() {
@@ -262,8 +256,8 @@ kill_all() {
 
 stop() {
 	/usr/bin/ssr-rules -f
-	kill_all ssr-redir ssr-local ssr-tunnel cdns pdnsd
-	rm  -rf /var/pdnsd
-	/etc/init.d/dns-forwarder stop >/dev/null 2>&1
-	/etc/init.d/https_dns_proxy stop >/dev/null 2>&1
+	kill_all ssr-redir ssr-local ssr-tunnel cdns
+	pidof https_dns_proxy && /etc/init.d/dns-forwarder stop
+	pidof dns-forwarder && /etc/init.d/https_dns_proxy stop
+	pidof pdnsd && /etc/init.d/pdnsd stop
 }
